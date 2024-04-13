@@ -14,7 +14,6 @@ public class proyecto2 {
         String nombreArchivo = "entrada.txt";
         Token[] tokens = procesarArchivo(nombreArchivo);
         for (int i = 0; i < tokens.length; i++) {
-            System.out.println(PilaOp);
             Token token = tokens[i];
             if (Prioridad(token.lexema) != -1) { // Si el token es un operador
                 if (token.lexema.equals(";")) {
@@ -35,7 +34,8 @@ public class proyecto2 {
                     PilaOp.push(token);
                 }
             } else if (!(token.token.equals("-2") || token.token.equals("-7") || token.token.equals("-16")
-                    || token.token.equals("-3") || token.token.equals("-6")
+                    || token.token.equals("-3") || token.token.equals("-6") || token.token.equals("-9")
+                    || token.token.equals("-10")
                     || token.lexema.equals(";"))) { // Añadir a VCI si no es "Inicio", "Fin", "Si" o ";"
                 VCI.add(token);
             } else if (token.lexema.equals(";")) {
@@ -60,8 +60,7 @@ public class proyecto2 {
                     if (ultimo.token.equals("-6") || ultimo.token.equals("-7")) {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
-                    }
-                    if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
+                            if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
                         PilaEst.push(token);
                         int posicion = PilaDir.pop();
                         Token dir = new Token(String.valueOf(VCI.size() + 2), null, null, null);
@@ -70,13 +69,16 @@ public class proyecto2 {
                         VCI.add(null);
                         PilaDir.push(direccion);
                         VCI.add(tokens[i + 1]);
-                    } else {
+                    } else  if ((!PilaDir.isEmpty() && i < tokens.length - 1 && !tokens[i + 1].token.equals("-7"))) {
                         if (!PilaDir.isEmpty()) {
-                            int posicion = PilaDir.pop();
-                            Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
-                            VCI.set(posicion, dir);
+                        int posicion = PilaDir.pop();
+                        Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
+                        VCI.set(posicion, dir);
+                        }
                         }
                     }
+                    
+                       
                     if (ultimo.token.equals("-9")) {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
@@ -89,16 +91,43 @@ public class proyecto2 {
                 PilaDir.push(VCI.size());
             } else if (token.token.equals("-10")) {// hasta
                 Token temporal = token;
-                while(!tokens[i].token.equals("-75")){
+                while (!tokens[i].token.equals("-75")) {
                     while (!PilaOp.isEmpty()) {
-                        VCI.add(PilaOp.pop());
+                        if (Prioridad(token.lexema) != -1) { // Si el token es un operador
+                            if (token.lexema.equals(";")) {
+                                while (!PilaOp.isEmpty()) {
+                                    VCI.add(PilaOp.pop());
+                                }
+                            } else if (token.lexema.equals("(")) {
+                                PilaOp.push(token);
+                            } else if (token.lexema.equals(")")) {
+                                while (!PilaOp.peek().lexema.equals("(")) {
+                                    VCI.add(PilaOp.pop());
+                                }
+                                PilaOp.pop();
+                            } else {
+                                while (!PilaOp.isEmpty()
+                                        && Prioridad(token.lexema) <= Prioridad(PilaOp.peek().lexema)) {
+                                    VCI.add(PilaOp.pop());
+                                }
+                                PilaOp.push(token);
+                            }
+                        } else if (!token.lexema.equals(";")) {
+                            VCI.add(token);
+                        } else if (token.lexema.equals(";")) {
+                            while (!PilaOp.isEmpty()) {
+                                VCI.add(PilaOp.pop());
+                            }
+                        }
                     }
                     i++;
-                }               
-                int posicion = PilaDir.pop();
-                Token dir = new Token(String.valueOf(posicion), null, null, null);
-                VCI.add(dir);
-                VCI.add(temporal);
+                }
+                if (!PilaDir.isEmpty()) {
+                    int posicion = PilaDir.pop();
+                    Token dir = new Token(String.valueOf(posicion), null, null, null);
+                    VCI.add(dir);
+                    VCI.add(temporal);
+                }
             }
         }
         for (int i = 0; i < VCI.size(); i++) {
