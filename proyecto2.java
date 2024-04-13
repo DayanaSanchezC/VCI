@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class proyecto2 {
@@ -60,25 +61,24 @@ public class proyecto2 {
                     if (ultimo.token.equals("-6") || ultimo.token.equals("-7")) {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
-                            if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
-                        PilaEst.push(token);
-                        int posicion = PilaDir.pop();
-                        Token dir = new Token(String.valueOf(VCI.size() + 2), null, null, null);
-                        VCI.set(posicion, dir);
-                        int direccion = VCI.size();
-                        VCI.add(null);
-                        PilaDir.push(direccion);
-                        VCI.add(tokens[i + 1]);
-                    } else  if ((!PilaDir.isEmpty() && i < tokens.length - 1 && !tokens[i + 1].token.equals("-7"))) {
-                        if (!PilaDir.isEmpty()) {
-                        int posicion = PilaDir.pop();
-                        Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
-                        VCI.set(posicion, dir);
-                        }
+                        if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
+                            PilaEst.push(token);
+                            int posicion = PilaDir.pop();
+                            Token dir = new Token(String.valueOf(VCI.size() + 2), null, null, null);
+                            VCI.set(posicion, dir);
+                            int direccion = VCI.size();
+                            VCI.add(null);
+                            PilaDir.push(direccion);
+                            VCI.add(tokens[i + 1]);
+                        } else if ((!PilaDir.isEmpty() && i < tokens.length - 1 && !tokens[i + 1].token.equals("-7"))) {
+                            if (!PilaDir.isEmpty()) {
+                                int posicion = PilaDir.pop();
+                                Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
+                                VCI.set(posicion, dir);
+                            }
                         }
                     }
-                    
-                       
+
                     if (ultimo.token.equals("-9")) {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
@@ -89,45 +89,45 @@ public class proyecto2 {
             } else if (token.token.equals("-9")) {// repetir
                 PilaEst.push(token);
                 PilaDir.push(VCI.size());
-            } else if (token.token.equals("-10")) {// hasta
+            } else if (token.token.equals("-10")) { // hasta
                 Token temporal = token;
+                List<Token> condicionUntil = new ArrayList<>(); // Lista para almacenar la condición del "until"
                 while (!tokens[i].token.equals("-75")) {
-                    while (!PilaOp.isEmpty()) {
-                        if (Prioridad(token.lexema) != -1) { // Si el token es un operador
-                            if (token.lexema.equals(";")) {
-                                while (!PilaOp.isEmpty()) {
-                                    VCI.add(PilaOp.pop());
-                                }
-                            } else if (token.lexema.equals("(")) {
-                                PilaOp.push(token);
-                            } else if (token.lexema.equals(")")) {
-                                while (!PilaOp.peek().lexema.equals("(")) {
-                                    VCI.add(PilaOp.pop());
-                                }
-                                PilaOp.pop();
-                            } else {
-                                while (!PilaOp.isEmpty()
-                                        && Prioridad(token.lexema) <= Prioridad(PilaOp.peek().lexema)) {
-                                    VCI.add(PilaOp.pop());
-                                }
-                                PilaOp.push(token);
-                            }
-                        } else if (!token.lexema.equals(";")) {
-                            VCI.add(token);
-                        } else if (token.lexema.equals(";")) {
+                    condicionUntil.add(tokens[i]);
+                    i++;
+                }
+                for (Token condToken : condicionUntil) {
+                    if (Prioridad(condToken.lexema) != -1) { // Si el token es un operador
+                        if (condToken.lexema.equals(";")) {
                             while (!PilaOp.isEmpty()) {
                                 VCI.add(PilaOp.pop());
                             }
+                        } else if (condToken.lexema.equals("(")) {
+                            PilaOp.push(condToken);
+                        } else if (condToken.lexema.equals(")")) {
+                            while (!PilaOp.peek().lexema.equals("(")) {
+                                VCI.add(PilaOp.pop());
+                            }
+                            PilaOp.pop();
+                        } else {
+                            while (!PilaOp.isEmpty()
+                                    && Prioridad(condToken.lexema) <= Prioridad(PilaOp.peek().lexema)) {
+                                VCI.add(PilaOp.pop());
+                            }
+                            PilaOp.push(condToken);
                         }
+                    } else if (!condToken.lexema.equals(";") || !condToken.token.equals("-10")) {
+                        VCI.add(condToken);
                     }
-                    i++;
                 }
+
                 if (!PilaDir.isEmpty()) {
                     int posicion = PilaDir.pop();
                     Token dir = new Token(String.valueOf(posicion), null, null, null);
                     VCI.add(dir);
                     VCI.add(temporal);
                 }
+                System.out.println(VCI);
             }
         }
         for (int i = 0; i < VCI.size(); i++) {
