@@ -70,7 +70,7 @@ public class proyecto2 {
                             VCI.add(null);
                             PilaDir.push(direccion);
                             VCI.add(tokens[i + 1]);
-                        } else if ((!PilaDir.isEmpty() && i < tokens.length - 1 && !tokens[i + 1].token.equals("-7"))) {
+                        } else  {//no esta entrando
                             if (!PilaDir.isEmpty()) {
                                 int posicion = PilaDir.pop();
                                 Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
@@ -92,6 +92,7 @@ public class proyecto2 {
             } else if (token.token.equals("-10")) { // hasta
                 Token temporal = token;
                 List<Token> condicionUntil = new ArrayList<>(); // Lista para almacenar la condición del "until"
+                i++;
                 while (!tokens[i].token.equals("-75")) {
                     condicionUntil.add(tokens[i]);
                     i++;
@@ -127,7 +128,6 @@ public class proyecto2 {
                     VCI.add(dir);
                     VCI.add(temporal);
                 }
-                System.out.println(VCI);
             }
         }
         for (int i = 0; i < VCI.size(); i++) {
