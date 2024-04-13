@@ -62,7 +62,7 @@ public class proyecto2 {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
                         if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
-                            PilaEst.push(token);
+                            PilaEst.push(tokens[i+1]);
                             int posicion = PilaDir.pop();
                             Token dir = new Token(String.valueOf(VCI.size() + 2), null, null, null);
                             VCI.set(posicion, dir);
