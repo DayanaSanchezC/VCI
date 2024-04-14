@@ -1,6 +1,8 @@
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +13,20 @@ public class proyecto2 {
         Stack<Token> PilaOp = new Stack<>();
         Stack<Token> PilaEst = new Stack<>();
         Stack<Integer> PilaDir = new Stack<>();
-        ArrayList<Token> VCI = new ArrayList<>(); // ArrayList para almacenar el VCI
+        ArrayList<Token> VCI = new ArrayList<>(); 
         String nombreArchivo = "entrada.txt";
         Token[] tokens = procesarArchivo(nombreArchivo);
+        boolean inicioEncontrado = false;
+
         for (int i = 0; i < tokens.length; i++) {
             Token token = tokens[i];
+            if (token.token.equals("-2")) {
+                inicioEncontrado = true;
+                continue; 
+            }
+            if (!inicioEncontrado) {
+                continue;
+            }
             if (Prioridad(token.lexema) != -1) { // Si el token es un operador
                 if (token.lexema.equals(";")) {
                     while (!PilaOp.isEmpty()) {
@@ -36,15 +47,14 @@ public class proyecto2 {
                 }
             } else if (!(token.token.equals("-2") || token.token.equals("-7") || token.token.equals("-16")
                     || token.token.equals("-3") || token.token.equals("-6") || token.token.equals("-9")
-                    || token.token.equals("-10")
-                    || token.lexema.equals(";"))) { // Añadir a VCI si no es "Inicio", "Fin", "Si" o ";"
+                    || token.token.equals("-10") || token.token.equals("-8") || token.token.equals("-17")
+                    || token.lexema.equals(";"))) { 
                 VCI.add(token);
             } else if (token.lexema.equals(";")) {
                 while (!PilaOp.isEmpty()) {
                     VCI.add(PilaOp.pop());
                 }
             }
-
             if (token.token.equals("-6")) {// si
                 PilaEst.push(token);
             } else if (token.token.equals("-16")) {// entonces
@@ -62,7 +72,7 @@ public class proyecto2 {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
                         if ((!PilaDir.isEmpty() && i < tokens.length - 1 && tokens[i + 1].token.equals("-7"))) {// sino
-                            PilaEst.push(tokens[i+1]);
+                            PilaEst.push(tokens[i + 1]);
                             int posicion = PilaDir.pop();
                             Token dir = new Token(String.valueOf(VCI.size() + 2), null, null, null);
                             VCI.set(posicion, dir);
@@ -70,7 +80,7 @@ public class proyecto2 {
                             VCI.add(null);
                             PilaDir.push(direccion);
                             VCI.add(tokens[i + 1]);
-                        } else  {//no esta entrando
+                        } else {// no esta entrando
                             if (!PilaDir.isEmpty()) {
                                 int posicion = PilaDir.pop();
                                 Token dir = new Token(String.valueOf(VCI.size()), null, null, null);
@@ -78,27 +88,31 @@ public class proyecto2 {
                             }
                         }
                     }
-
                     if (ultimo.token.equals("-9")) {
                         if (!PilaEst.isEmpty())
                             PilaEst.pop();
                     }
+                    if (ultimo.token.equals("-8")) {
+                        PilaEst.pop();
+                        VCI.set(PilaDir.pop(), new Token(String.valueOf(VCI.size() + 2), null, null, null));
+                        VCI.add(new Token(String.valueOf(PilaDir.pop()), null, null, null));
+                        VCI.add(new Token("FIN-MIENTRAS", null, null, null));
 
+                    }
                 }
-
             } else if (token.token.equals("-9")) {// repetir
                 PilaEst.push(token);
                 PilaDir.push(VCI.size());
             } else if (token.token.equals("-10")) { // hasta
                 Token temporal = token;
-                List<Token> condicionUntil = new ArrayList<>(); // Lista para almacenar la condición del "until"
+                List<Token> condicionUntil = new ArrayList<>(); 
                 i++;
                 while (!tokens[i].token.equals("-75")) {
                     condicionUntil.add(tokens[i]);
                     i++;
                 }
                 for (Token condToken : condicionUntil) {
-                    if (Prioridad(condToken.lexema) != -1) { // Si el token es un operador
+                    if (Prioridad(condToken.lexema) != -1) { 
                         if (condToken.lexema.equals(";")) {
                             while (!PilaOp.isEmpty()) {
                                 VCI.add(PilaOp.pop());
@@ -121,20 +135,25 @@ public class proyecto2 {
                         VCI.add(condToken);
                     }
                 }
-
                 if (!PilaDir.isEmpty()) {
                     int posicion = PilaDir.pop();
                     Token dir = new Token(String.valueOf(posicion), null, null, null);
                     VCI.add(dir);
                     VCI.add(temporal);
                 }
+            } else if (token.token.equals("-8")) {// mientras
+                PilaEst.push(token);
+                PilaDir.push(VCI.size());
+            } else if (token.token.equals("-17")) {// hacer
+                while (!PilaOp.isEmpty()) {
+                    VCI.add(PilaOp.pop());
+                }
+                PilaDir.push(VCI.size());
+                VCI.add(null);
+                VCI.add(token);
             }
         }
-        for (int i = 0; i < VCI.size(); i++) {
-            Token token = VCI.get(i);
-            System.out.println(token);
-        }
-
+        escribirArchivo(VCI, "VCI.txt");
     }
 
     private static int Prioridad(String lexema) {
@@ -166,7 +185,7 @@ public class proyecto2 {
             case ")":
                 return 0;
             default:
-                return -1; // Si no es un operador o palabra reservada válida, retornar -1
+                return -1; 
         }
     }
 
@@ -199,5 +218,16 @@ public class proyecto2 {
                 lineCount++;
         }
         return lineCount;
+    }
+
+    public static void escribirArchivo(List<Token> VCI, String nombreArchivo) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivo))) {
+            for (Token token : VCI) {
+                writer.write(token.toString());
+                writer.newLine(); 
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
