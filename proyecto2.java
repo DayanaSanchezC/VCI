@@ -23,13 +23,13 @@ public class proyecto2 {
                 continue;
             }
             if (Prioridad(token.lexema) != -1) { // Si el token es un operador
-                if (token.lexema.equals(";")) {
+                if (token.token.equals("-75")) {//;
                     while (!PilaOp.isEmpty()) {
                         VCI.add(PilaOp.pop());
                     }
-                } else if (token.lexema.equals("(")) {
+                } else if (token.token.equals("-73")) {//(
                     PilaOp.push(token);
-                } else if (token.lexema.equals(")")) {
+                } else if (token.token.equals("-74")) {//)
                     while (!PilaOp.peek().lexema.equals("(")) {
                         VCI.add(PilaOp.pop());
                     }
@@ -43,9 +43,9 @@ public class proyecto2 {
             } else if (!(token.token.equals("-2") || token.token.equals("-7") || token.token.equals("-16")
                     || token.token.equals("-3") || token.token.equals("-6") || token.token.equals("-9")
                     || token.token.equals("-10") || token.token.equals("-8") || token.token.equals("-17")
-                    || token.lexema.equals(";"))) { 
+                    || token.token.equals("-75"))) { 
                 VCI.add(token);
-            } else if (token.lexema.equals(";")) {
+            } else if (token.token.equals("-75")) {
                 while (!PilaOp.isEmpty()) {
                     VCI.add(PilaOp.pop());
                 }
@@ -108,14 +108,14 @@ public class proyecto2 {
                 }
                 for (Token condToken : condicionUntil) {
                     if (Prioridad(condToken.lexema) != -1) { 
-                        if (condToken.lexema.equals(";")) {
+                        if (condToken.token.equals("-75")) {
                             while (!PilaOp.isEmpty()) {
                                 VCI.add(PilaOp.pop());
                             }
-                        } else if (condToken.lexema.equals("(")) {
+                        } else if (condToken.token.equals("-73")) {
                             PilaOp.push(condToken);
-                        } else if (condToken.lexema.equals(")")) {
-                            while (!PilaOp.peek().lexema.equals("(")) {
+                        } else if (condToken.token.equals("-74")) {
+                            while (!PilaOp.peek().token.equals("-73")) {
                                 VCI.add(PilaOp.pop());
                             }
                             PilaOp.pop();
@@ -126,7 +126,7 @@ public class proyecto2 {
                             }
                             PilaOp.push(condToken);
                         }
-                    } else if (!condToken.lexema.equals(";") || !condToken.token.equals("-10")) {
+                    } else if (!condToken.token.equals("-75") || !condToken.token.equals("-10")) {
                         VCI.add(condToken);
                     }
                 }
@@ -204,6 +204,11 @@ public class proyecto2 {
             int i = 0;
             while ((linea = br.readLine()) != null) {
                 String[] partes = linea.split(",", 4);
+                if (partes.length != 4) {
+                    System.err.println("Error, se espera que este en el siguiente formato\n"+
+                    "Lexema,Token,Posicion,Linea");                    
+                    continue; 
+                }
                 String lexema = partes[0];
                 String token = partes[1];
                 String pts = partes[2];
