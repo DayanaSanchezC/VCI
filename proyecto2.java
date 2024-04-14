@@ -1,12 +1,7 @@
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.io.*;
+import java.util.*;
+import javax.swing.*;
 
 public class proyecto2 {
     public static void main(String[] args) {
@@ -14,7 +9,7 @@ public class proyecto2 {
         Stack<Token> PilaEst = new Stack<>();
         Stack<Integer> PilaDir = new Stack<>();
         ArrayList<Token> VCI = new ArrayList<>(); 
-        String nombreArchivo = "entrada.txt";
+        String nombreArchivo = seleccionarArchivo();
         Token[] tokens = procesarArchivo(nombreArchivo);
         boolean inicioEncontrado = false;
 
@@ -189,6 +184,17 @@ public class proyecto2 {
         }
     }
 
+    public static String seleccionarArchivo() {
+        JFileChooser fileChooser = new JFileChooser();
+        int seleccion = fileChooser.showOpenDialog(null);
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile().getAbsolutePath();
+        } else {
+            // El usuario canceló la selección, podrías manejarlo de alguna manera
+            return null;
+        }
+    }
+
     public static Token[] procesarArchivo(String nombreArchivo) {
         Token[] tokens = null;
         try (BufferedReader br = new BufferedReader(new FileReader(nombreArchivo))) {
@@ -220,12 +226,14 @@ public class proyecto2 {
         return lineCount;
     }
 
+
     public static void escribirArchivo(List<Token> VCI, String nombreArchivo) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivo))) {
             for (Token token : VCI) {
                 writer.write(token.toString());
                 writer.newLine(); 
             }
+            System.out.println("Archivo VCI generado");
         } catch (IOException e) {
             e.printStackTrace();
         }
