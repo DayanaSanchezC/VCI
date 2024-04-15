@@ -147,8 +147,10 @@ public class proyecto2 {
                 VCI.add(null);
                 VCI.add(token);
             }
+    
         }
         escribirArchivo(VCI, "VCI.txt");
+       
     }
 
     private static int Prioridad(String lexema) {
